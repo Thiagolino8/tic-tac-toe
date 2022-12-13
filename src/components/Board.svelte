@@ -58,7 +58,7 @@
 				setTimeout(() => {
 					check(Turn.COMPUTER);
 					turn = Turn.PLAYER;
-				}, 500);
+				}, 1000);
 			} else {
 				computer();
 			}
@@ -72,7 +72,7 @@
 			setTimeout(() => {
 				check(Turn.PLAYER);
 				computer();
-			}, 500);
+			}, 1000);
 		}
 	};
 </script>
