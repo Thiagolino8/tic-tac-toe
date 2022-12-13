@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { message, showModal } from '../routes/+page.svelte';
 
 	import Play, { PlayType } from './Play.svelte';
@@ -11,8 +12,20 @@
 
 	enum Turn {
 		PLAYER = PlayType.CROSS,
-		COMPUTER = PlayType.CIRCLE
+		COMPUTER = PlayType.CIRCLE,
+		NONE = PlayType.EMPTY
 	}
+
+	onMount(() => {
+		const unsubscribe = showModal.subscribe((value) => {
+			if (value) {
+				turn = Turn.NONE;
+			} else {
+				turn = Turn.PLAYER;
+			}
+		});
+		return () => unsubscribe();
+	});
 
 	let turn: Turn = Turn.PLAYER;
 
@@ -25,6 +38,7 @@
 	let plays: Board = JSON.parse(JSON.stringify(initialBoard));
 
 	const endGame = () => {
+		turn = Turn.NONE;
 		setTimeout(() => {
 			$showModal = true;
 			plays = JSON.parse(JSON.stringify(initialBoard));
@@ -45,10 +59,9 @@
 				(play) => play.toString() === currentTurn.toString()
 			)
 		) {
-		turn = Turn.PLAYER;
 			endGame();
 		} else if (plays.every((row) => row.every((play) => play !== PlayType.EMPTY))) {
-			$message = 'Draw!'
+			$message = 'Draw!';
 			endGame();
 		}
 	};
@@ -83,13 +96,13 @@
 
 <div class="container">
 	<h1>Tic Tac Toe</h1>
-<div class="board">
-	{#each plays as row, i}
-		{#each row as play, j}
-			<Play {play} on:click={() => choose(i, j)} />
+	<div class="board">
+		{#each plays as row, i}
+			{#each row as play, j}
+				<Play {play} on:click={() => choose(i, j)} />
+			{/each}
 		{/each}
-	{/each}
-</div>
+	</div>
 </div>
 
 <style>
