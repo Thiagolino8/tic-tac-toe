@@ -24,6 +24,13 @@
 
 	let plays: Board = JSON.parse(JSON.stringify(initialBoard));
 
+	const endGame = () => {
+		setTimeout(() => {
+			$showModal = true;
+			plays = JSON.parse(JSON.stringify(initialBoard));
+		}, 1000);
+	};
+
 	const check = (currentTurn: Turn) => {
 		$message = currentTurn === Turn.PLAYER ? 'You win!' : 'You lose!';
 		if (
@@ -38,14 +45,11 @@
 				(play) => play.toString() === currentTurn.toString()
 			)
 		) {
-			$showModal = true;
-			plays = JSON.parse(JSON.stringify(initialBoard));
-			turn = Turn.PLAYER;
+		turn = Turn.PLAYER;
+			endGame();
 		} else if (plays.every((row) => row.every((play) => play !== PlayType.EMPTY))) {
 			$message = 'Draw!'
-			$showModal = true;
-			plays = JSON.parse(JSON.stringify(initialBoard));
-			turn = Turn.PLAYER;
+			endGame();
 		}
 	};
 
@@ -57,8 +61,7 @@
 				plays[row][col] = PlayType.CIRCLE;
 				setTimeout(() => {
 					check(Turn.COMPUTER);
-					turn = Turn.PLAYER;
-				}, 1000);
+				}, 500);
 			} else {
 				computer();
 			}
@@ -72,7 +75,8 @@
 			setTimeout(() => {
 				check(Turn.PLAYER);
 				computer();
-			}, 1000);
+				turn = Turn.PLAYER;
+			}, 500);
 		}
 	};
 </script>
