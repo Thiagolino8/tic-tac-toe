@@ -16,17 +16,6 @@
 		NONE = PlayType.EMPTY
 	}
 
-	onMount(() => {
-		const unsubscribe = showModal.subscribe((value) => {
-			if (value) {
-				turn = Turn.NONE;
-			} else {
-				turn = Turn.PLAYER;
-			}
-		});
-		return () => unsubscribe();
-	});
-
 	let turn: Turn = Turn.PLAYER;
 
 	const initialBoard: Board = [
@@ -37,11 +26,15 @@
 
 	let plays: Board = JSON.parse(JSON.stringify(initialBoard));
 
+	$: if (!$showModal) {
+		plays = JSON.parse(JSON.stringify(initialBoard));
+		turn = Turn.PLAYER;
+	}
+
 	const endGame = () => {
 		turn = Turn.NONE;
 		setTimeout(() => {
 			$showModal = true;
-			plays = JSON.parse(JSON.stringify(initialBoard));
 		}, 1000);
 	};
 
