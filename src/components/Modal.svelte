@@ -25,7 +25,7 @@
 
 	.modal {
 		display: grid;
-		place-content: center;
+		place-items: center;
 		padding: 1rem;
 		border-radius: 0.5rem;
 	}
