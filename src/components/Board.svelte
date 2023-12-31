@@ -5,47 +5,39 @@
 
 	type Board = [[PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType]]
 
-	const enum Turn {
-		PLAYER = PlayType.CROSS,
-		COMPUTER = PlayType.CIRCLE,
-		NONE = PlayType.EMPTY,
-	}
-
-	let turn = $state<Turn>(Turn.PLAYER)
+	let turn = $state(PlayType.PLAYER)
 	let onintroend = $state(() => {})
 
 	const initialBoard: Board = [
-		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
-		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
-		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
+		[PlayType.NONE, PlayType.NONE, PlayType.NONE],
+		[PlayType.NONE, PlayType.NONE, PlayType.NONE],
+		[PlayType.NONE, PlayType.NONE, PlayType.NONE],
 	]
 
-	let plays = $state<Board>(structuredClone(initialBoard))
+	let plays = $state(structuredClone(initialBoard))
 
 	$effect(() => {
 		if (!store.showModal) {
 			plays = structuredClone(initialBoard)
-			turn = Turn.PLAYER
+			turn = PlayType.PLAYER
 		}
 	})
 
 	const endGame = () => {
-		turn = Turn.NONE
+		turn = PlayType.NONE
 		store.showModal = true
 	}
 
-	const check = (currentTurn: Turn, resume: VoidFunction) => {
-		store.message = currentTurn === Turn.PLAYER ? 'You win!' : 'You lose!'
+	const check = (currentTurn: PlayType, resume: VoidFunction) => {
+		store.message = currentTurn === PlayType.PLAYER ? 'You win!' : 'You lose!'
 		if (
-			plays.some((row) => row.every((play) => play.toString() === currentTurn.toString())) ||
-			Array.from({ length: plays.length }).some((_, col) =>
-				plays.every((row) => row[col]?.toString() === currentTurn.toString())
-			) ||
-			[plays[1][1], plays[2][2], plays[0][0]].every((play) => play.toString() === currentTurn.toString()) ||
-			[plays[1][1], plays[0][2], plays[2][0]].every((play) => play.toString() === currentTurn.toString())
+			plays.some((row) => row.every((play) => play === currentTurn)) ||
+			plays.some((_, col) => plays.every((row) => row[col] === currentTurn)) ||
+			plays.every((play, i) => play[i] === currentTurn) ||
+			plays.every((play, i) => play[plays.length - 1 - i] === currentTurn)
 		)
 			return endGame()
-		else if (plays.every((row) => row.every((play) => play !== PlayType.EMPTY))) {
+		else if (plays.every((row) => row.every((play) => play !== PlayType.NONE))) {
 			store.message = 'Draw!'
 			return endGame()
 		}
@@ -53,15 +45,15 @@
 	}
 
 	const computer = () => {
-		turn = Turn.COMPUTER
+		turn = PlayType.COMPUTER
 		const row = ~~(Math.random() * plays.length)
 		const col = ~~(Math.random() * plays.length)
 		const tableRow = plays[row]
-		if (tableRow?.[col] === PlayType.EMPTY) {
-			tableRow[col] = PlayType.CIRCLE
+		if (tableRow?.[col] === PlayType.NONE) {
+			tableRow[col] = PlayType.COMPUTER
 			onintroend = () => {
-				check(Turn.COMPUTER, () => {
-					turn = Turn.PLAYER
+				check(PlayType.COMPUTER, () => {
+					turn = PlayType.PLAYER
 				})
 			}
 		} else {
@@ -71,11 +63,11 @@
 
 	const choose = (row: number, col: number) => {
 		const tableRow = plays[row]
-		if (turn === Turn.PLAYER && tableRow?.[col] === PlayType.EMPTY) {
-			turn = Turn.NONE
-			tableRow[col] = PlayType.CROSS
+		if (turn === PlayType.PLAYER && tableRow?.[col] === PlayType.NONE) {
+			turn = PlayType.NONE
+			tableRow[col] = PlayType.PLAYER
 			onintroend = () => {
-				check(Turn.PLAYER, computer)
+				check(PlayType.PLAYER, computer)
 			}
 		}
 	}

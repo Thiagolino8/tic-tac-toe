@@ -1,30 +1,30 @@
 <script lang="ts" context="module">
 	export const enum PlayType {
-		CROSS = 'cross',
-		CIRCLE = 'circle',
-		EMPTY = 'empty'
+		PLAYER = 'cross',
+		COMPUTER = 'circle',
+		NONE = 'empty',
 	}
 </script>
 
 <script lang="ts">
-	import type { EventHandler, MouseEventHandler } from 'svelte/elements';
+	import type { EventHandler, MouseEventHandler } from 'svelte/elements'
 
-	import { draw } from 'svelte/transition';
+	import { draw } from 'svelte/transition'
 
 	let {
-		play = PlayType.EMPTY,
+		play = PlayType.NONE,
 		onclick,
-		onintroend
+		onintroend,
 	} = $props<{
-		play: PlayType;
-		onclick: MouseEventHandler<HTMLButtonElement>;
-		onintroend: EventHandler<CustomEvent<null>, SVGPathElement>;
-	}>();
-	const color = $derived(play === PlayType.CROSS ? '#6366f1' : '#ef4444');
+		play: PlayType
+		onclick: MouseEventHandler<HTMLButtonElement>
+		onintroend: EventHandler<CustomEvent<null>, SVGPathElement>
+	}>()
+	const color = $derived(play === PlayType.PLAYER ? '#6366f1' : '#ef4444')
 </script>
 
 <button style:--color={color} {onclick}>
-	{#if play === PlayType.CROSS}
+	{#if play === PlayType.PLAYER}
 		<svg viewBox="0 0 24 24">
 			<path
 				transition:draw
@@ -35,7 +35,7 @@
 				d="M5.72 5.72a.75.75 0 011.06 0L12 10.94l5.22-5.22a.75.75 0 111.06 1.06L13.06 12l5.22 5.22a.75.75 0 11-1.06 1.06L12 13.06l-5.22 5.22a.75.75 0 01-1.06-1.06L10.94 12 5.72 6.78a.75.75 0 010-1.06z"
 			/>
 		</svg>
-	{:else if play === PlayType.CIRCLE}
+	{:else if play === PlayType.COMPUTER}
 		<svg viewBox="0 0 32 32">
 			<path
 				transition:draw
