@@ -1,32 +1,34 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-	import { message, showModal } from '../routes/+page.svelte';
+	import { fade } from 'svelte/transition'
+	import { store } from '../store.svelte'
+
+	let modal = $state<HTMLDialogElement>()
+
+	$effect(() => {
+		if (store.showModal) modal?.showModal()
+	})
 </script>
 
-<div transition:fade class="overlay">
-	<div class="modal">
-		<h2>{$message}</h2>
-		<button on:click={() => ($showModal = false)}>Play again</button>
-	</div>
-</div>
+{#if store.showModal}
+	<dialog transition:fade bind:this={modal}>
+		<h2>{store.message}</h2>
+		<button onclick={() => (store.showModal = false)}>Play again</button>
+	</dialog>
+{/if}
 
 <style>
-	.overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100vh;
-		background-color: rgba(0, 0, 0, 0.5);
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	dialog {
+		flex-direction: column;
+		min-width: 0;
+		width: fit-content;
+		min-height: 0;
+		height: fit-content;
+		backdrop-filter: none;
+		background: transparent;
 	}
 
-	.modal {
-		display: grid;
-		place-items: center;
-		padding: 1rem;
-		border-radius: 0.5rem;
+	dialog::backdrop {
+		background-color: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(0.25rem);
 	}
 </style>

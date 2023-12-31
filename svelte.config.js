@@ -1,19 +1,8 @@
-import adapter from '@sveltejs/adapter-static';
-import preprocess from 'svelte-preprocess';
+import { vitePreprocess } from '@astrojs/svelte';
 
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-	preprocess: preprocess(),
-
-	kit: {
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			fallback: null,
-			precompress: true,
-			strict: true
-		})
+export default {
+	preprocess: vitePreprocess(),
+	compilerOptions: {
+		runes: true
 	}
 };
-
-export default config;

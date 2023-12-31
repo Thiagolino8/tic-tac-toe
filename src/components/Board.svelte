@@ -1,120 +1,102 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { message, showModal } from '../routes/+page.svelte';
+	import { store } from '../store.svelte'
 
-	import Play, { PlayType } from './Play.svelte';
+	import Play, { PlayType } from './Play.svelte'
 
-	type Board = [
-		[PlayType, PlayType, PlayType],
-		[PlayType, PlayType, PlayType],
-		[PlayType, PlayType, PlayType]
-	];
+	type Board = [[PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType]]
 
-	enum Turn {
+	const enum Turn {
 		PLAYER = PlayType.CROSS,
 		COMPUTER = PlayType.CIRCLE,
-		NONE = PlayType.EMPTY
+		NONE = PlayType.EMPTY,
 	}
 
-	let turn: Turn = Turn.PLAYER;
+	let turn = $state<Turn>(Turn.PLAYER)
+	let onintroend = $state(() => {})
 
 	const initialBoard: Board = [
 		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
 		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
-		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY]
-	];
+		[PlayType.EMPTY, PlayType.EMPTY, PlayType.EMPTY],
+	]
 
-	let plays: Board = JSON.parse(JSON.stringify(initialBoard));
+	let plays = $state<Board>(structuredClone(initialBoard))
 
-	$: if (!$showModal) {
-		plays = JSON.parse(JSON.stringify(initialBoard));
-		turn = Turn.PLAYER;
-	}
+	$effect(() => {
+		if (!store.showModal) {
+			plays = structuredClone(initialBoard)
+			turn = Turn.PLAYER
+		}
+	})
 
 	const endGame = () => {
-		turn = Turn.NONE;
-		setTimeout(() => {
-			$showModal = true;
-		}, 1000);
-	};
+		turn = Turn.NONE
+		store.showModal = true
+	}
 
-	const check = (currentTurn: Turn) => {
-		$message = currentTurn === Turn.PLAYER ? 'You win!' : 'You lose!';
+	const check = (currentTurn: Turn, resume: VoidFunction) => {
+		store.message = currentTurn === Turn.PLAYER ? 'You win!' : 'You lose!'
 		if (
 			plays.some((row) => row.every((play) => play.toString() === currentTurn.toString())) ||
 			Array.from({ length: plays.length }).some((_, col) =>
-				plays.every((row) => row[col].toString() === currentTurn.toString())
+				plays.every((row) => row[col]?.toString() === currentTurn.toString())
 			) ||
-			[plays[1][1], plays[2][2], plays[0][0]].every(
-				(play) => play.toString() === currentTurn.toString()
-			) ||
-			[plays[1][1], plays[0][2], plays[2][0]].every(
-				(play) => play.toString() === currentTurn.toString()
-			)
-		) {
-			endGame();
-		} else if (plays.every((row) => row.every((play) => play !== PlayType.EMPTY))) {
-			$message = 'Draw!';
-			endGame();
+			[plays[1][1], plays[2][2], plays[0][0]].every((play) => play.toString() === currentTurn.toString()) ||
+			[plays[1][1], plays[0][2], plays[2][0]].every((play) => play.toString() === currentTurn.toString())
+		)
+			return endGame()
+		else if (plays.every((row) => row.every((play) => play !== PlayType.EMPTY))) {
+			store.message = 'Draw!'
+			return endGame()
 		}
-	};
-
-	const computer = () => {
-		if (turn === Turn.COMPUTER) {
-			const row = Math.floor(Math.random() * plays.length);
-			const col = Math.floor(Math.random() * plays.length);
-			if (plays[row][col] === PlayType.EMPTY) {
-				plays[row][col] = PlayType.CIRCLE;
-				setTimeout(() => {
-					check(Turn.COMPUTER);
-				}, 500);
-			} else {
-				computer();
-			}
-		}
-	};
-
-	const choose = (row: number, col: number) => {
-		if (turn === Turn.PLAYER && plays[row][col] === PlayType.EMPTY) {
-			turn = Turn.COMPUTER;
-			plays[row][col] = PlayType.CROSS;
-			setTimeout(() => {
-				check(Turn.PLAYER);
-				computer();
-				turn = Turn.PLAYER;
-			}, 500);
-		}
-	};
-</script>
-
-<div class="container">
-	<h1>Tic Tac Toe</h1>
-	<div class="board">
-		{#each plays as row, i}
-			{#each row as play, j}
-				<Play {play} on:click={() => choose(i, j)} />
-			{/each}
-		{/each}
-	</div>
-</div>
-
-<style>
-	.container {
-		height: 100vh;
-		display: grid;
-		place-content: center;
-		place-items: center;
+		resume()
 	}
 
-	.board {
+	const computer = () => {
+		turn = Turn.COMPUTER
+		const row = ~~(Math.random() * plays.length)
+		const col = ~~(Math.random() * plays.length)
+		const tableRow = plays[row]
+		if (tableRow?.[col] === PlayType.EMPTY) {
+			tableRow[col] = PlayType.CIRCLE
+			onintroend = () => {
+				check(Turn.COMPUTER, () => {
+					turn = Turn.PLAYER
+				})
+			}
+		} else {
+			computer()
+		}
+	}
+
+	const choose = (row: number, col: number) => {
+		const tableRow = plays[row]
+		if (turn === Turn.PLAYER && tableRow?.[col] === PlayType.EMPTY) {
+			turn = Turn.NONE
+			tableRow[col] = PlayType.CROSS
+			onintroend = () => {
+				check(Turn.PLAYER, computer)
+			}
+		}
+	}
+</script>
+
+<section>
+	{#each plays as row, i}
+		{#each row as play, j}
+			<Play {play} {onintroend} onclick={() => choose(i, j)} />
+		{/each}
+	{/each}
+</section>
+
+<style>
+	section {
 		background-color: #2c3e50;
 		display: grid;
-		width: fit-content;
 		padding: 1rem;
 		border-radius: 0.5rem;
 		place-content: center;
 		grid: repeat(3, 5rem) / repeat(3, 5rem);
-		grid-gap: 1em;
-		place-self: center;
+		gap: 1em;
 	}
 </style>
