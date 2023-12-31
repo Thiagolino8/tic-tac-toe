@@ -50,7 +50,6 @@
 
 <style>
 	button {
-		margin: 0;
 		padding: 0;
 		grid-area: span 1;
 		background-color: #34495e;

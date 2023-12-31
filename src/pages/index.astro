@@ -2,6 +2,7 @@
 import '@picocss/pico'
 import Board from '../components/Board.svelte'
 import Modal from '../components/Modal.svelte'
+import Footer from '../components/Footer.astro'
 ---
 
 <html lang='en'>
@@ -18,14 +19,26 @@ import Modal from '../components/Modal.svelte'
 			<Board client:load />
 			<Modal client:idle />
 		</main>
+		<Footer />
 	</body>
 </html>
 
 <style>
-	main {
+	:global(*) {
+		margin: 0 !important;
+	}
+
+	body {
+		display: grid;
+		grid-template-rows: 1fr auto;
 		height: 100vh;
+	}
+
+	main {
 		display: grid;
 		place-content: center;
 		place-items: center;
+		gap: 1rem;
+		padding: 0;
 	}
 </style>
