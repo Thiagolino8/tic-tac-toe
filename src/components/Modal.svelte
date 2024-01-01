@@ -2,15 +2,13 @@
 	import { fade } from 'svelte/transition'
 	import { store } from '../store.svelte'
 
-	let modal = $state<HTMLDialogElement>()
-
-	$effect(() => {
-		if (store.showModal) modal?.showModal()
-	})
+	const show = (dialog: HTMLDialogElement) => {
+		dialog.showModal()
+	}
 </script>
 
 {#if store.showModal}
-	<dialog transition:fade bind:this={modal}>
+	<dialog use:show transition:fade bind:this={modal}>
 		<h2>{store.message}</h2>
 		<button onclick={() => (store.showModal = false)}>Play again</button>
 	</dialog>
