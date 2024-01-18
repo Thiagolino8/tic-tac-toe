@@ -8,7 +8,7 @@
 </script>
 
 {#if store.showModal}
-	<dialog use:show transition:fade bind:this={modal}>
+	<dialog use:show transition:fade>
 		<h2>{store.message}</h2>
 		<button onclick={() => (store.showModal = false)}>Play again</button>
 	</dialog>
