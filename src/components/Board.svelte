@@ -5,7 +5,7 @@
 
 	type Board = [[PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType], [PlayType, PlayType, PlayType]]
 
-	let turn = $state(PlayType.PLAYER)
+	let turn = $state<PlayType>(PlayType.PLAYER)
 	let onintroend = $state(() => {})
 
 	const initialBoard: Board = [
@@ -14,11 +14,11 @@
 		[PlayType.NONE, PlayType.NONE, PlayType.NONE],
 	]
 
-	let plays = $state(structuredClone(initialBoard))
+	let board = $state(initialBoard)
 
 	$effect(() => {
 		if (!store.showModal) {
-			plays = structuredClone(initialBoard)
+			board = initialBoard
 			turn = PlayType.PLAYER
 		}
 	})
@@ -31,13 +31,13 @@
 	const check = (currentTurn: PlayType, resume: VoidFunction) => {
 		store.message = currentTurn === PlayType.PLAYER ? 'You win!' : 'You lose!'
 		if (
-			plays.some((row) => row.every((play) => play === currentTurn)) ||
-			plays.some((_, col) => plays.every((row) => row[col] === currentTurn)) ||
-			plays.every((play, i) => play[i] === currentTurn) ||
-			plays.every((play, i) => play[plays.length - 1 - i] === currentTurn)
+			board.some((row) => row.every((play) => play === currentTurn)) ||
+			board.some((_, col) => board.every((row) => row[col] === currentTurn)) ||
+			board.every((play, i) => play[i] === currentTurn) ||
+			board.every((play, i) => play[board.length - 1 - i] === currentTurn)
 		)
 			return endGame()
-		else if (plays.every((row) => row.every((play) => play !== PlayType.NONE))) {
+		else if (board.every((row) => row.every((play) => play !== PlayType.NONE))) {
 			store.message = 'Draw!'
 			return endGame()
 		}
@@ -46,9 +46,9 @@
 
 	const computer = () => {
 		turn = PlayType.COMPUTER
-		const row = ~~(Math.random() * plays.length)
-		const col = ~~(Math.random() * plays.length)
-		const tableRow = plays[row]
+		const row = ~~(Math.random() * board.length)
+		const col = ~~(Math.random() * board.length)
+		const tableRow = board[row]
 		if (tableRow?.[col] === PlayType.NONE) {
 			tableRow[col] = PlayType.COMPUTER
 			onintroend = () => {
@@ -62,7 +62,7 @@
 	}
 
 	const choose = (row: number, col: number) => {
-		const tableRow = plays[row]
+		const tableRow = board[row]
 		if (turn === PlayType.PLAYER && tableRow?.[col] === PlayType.NONE) {
 			turn = PlayType.NONE
 			tableRow[col] = PlayType.PLAYER
@@ -74,8 +74,8 @@
 </script>
 
 <section>
-	{#each plays as row, i}
-		{#each row as play, j}
+	{#each board as row, i (i)}
+		{#each row as play, j (j)}
 			<Play {play} {onintroend} onclick={() => choose(i, j)} />
 		{/each}
 	{/each}

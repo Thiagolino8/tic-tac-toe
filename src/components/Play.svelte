@@ -1,9 +1,10 @@
-<script lang="ts" context="module">
-	export const enum PlayType {
-		PLAYER = 'cross',
-		COMPUTER = 'circle',
-		NONE = 'empty',
-	}
+<script lang="ts" module>
+	export const PlayType = {
+		PLAYER: 'cross',
+		COMPUTER: 'circle',
+		NONE: 'empty',
+	} as const
+	export type PlayType = (typeof PlayType)[keyof typeof PlayType]
 </script>
 
 <script lang="ts">
@@ -15,11 +16,11 @@
 		play = PlayType.NONE,
 		onclick,
 		onintroend,
-	} = $props<{
+	}: {
 		play: PlayType
 		onclick: MouseEventHandler<HTMLButtonElement>
 		onintroend: EventHandler<CustomEvent<null>, SVGPathElement>
-	}>()
+	} = $props()
 	const color = $derived(play === PlayType.PLAYER ? '#6366f1' : '#ef4444')
 </script>
 
@@ -27,7 +28,7 @@
 	{#if play === PlayType.PLAYER}
 		<svg viewBox="0 0 24 24">
 			<path
-				transition:draw
+				transition:draw={{ delay: 1 }}
 				{onintroend}
 				fill="none"
 				stroke="currentColor"
@@ -38,7 +39,7 @@
 	{:else if play === PlayType.COMPUTER}
 		<svg viewBox="0 0 32 32">
 			<path
-				transition:draw
+				transition:draw={{ delay: 1 }}
 				{onintroend}
 				fill="none"
 				stroke="currentColor"
