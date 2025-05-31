@@ -28,7 +28,7 @@
 	{#if play === PlayType.PLAYER}
 		<svg viewBox="0 0 24 24">
 			<path
-				transition:draw={{ delay: 1 }}
+				transition:draw
 				{onintroend}
 				fill="none"
 				stroke="currentColor"
@@ -39,7 +39,7 @@
 	{:else if play === PlayType.COMPUTER}
 		<svg viewBox="0 0 32 32">
 			<path
-				transition:draw={{ delay: 1 }}
+				transition:draw
 				{onintroend}
 				fill="none"
 				stroke="currentColor"
